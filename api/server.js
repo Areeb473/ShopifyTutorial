@@ -1,11 +1,13 @@
 const axios = require("axios");
 
+// Read credentials from environment variables
 const KOGAN_SELLER_ID = process.env.KOGAN_SELLER_ID;
 const KOGAN_SELLER_TOKEN = process.env.KOGAN_SELLER_TOKEN;
 
-module.exports = async (req, res) => {
+// Vercel API route handler
+module.exports = async function handler(req, res) {
   if (req.method !== "POST") {
-    return res.status(405).send("Method Not Allowed");
+    return res.status(405).send({ message: "Method Not Allowed" });
   }
 
   try {
@@ -13,14 +15,14 @@ module.exports = async (req, res) => {
     console.log("📦 Shopify sent product data:", product);
 
     const koganProduct = {
-      sku: product.variants[0].sku || `SKU-${product.id}`,
+      sku: product.variants?.[0]?.sku || `SKU-${product.id}`,
       name: product.title,
       description: product.body_html || "",
-      price: parseFloat(product.variants[0].price),
-      quantity: product.variants[0].inventory_quantity,
+      price: parseFloat(product.variants?.[0]?.price) || 0,
+      quantity: product.variants?.[0]?.inventory_quantity || 0,
       brand: product.vendor || "Generic",
       categories: ["Other"],
-      images: product.images.map((img) => img.src),
+      images: product.images?.map((img) => img.src) || []
     };
 
     const response = await axios.post(
@@ -29,9 +31,9 @@ module.exports = async (req, res) => {
       {
         headers: {
           "Content-Type": "application/json",
-          SellerId: KOGAN_SELLER_ID,
-          SellerToken: KOGAN_SELLER_TOKEN,
-        },
+          "SellerId": KOGAN_SELLER_ID,
+          "SellerToken": KOGAN_SELLER_TOKEN
+        }
       }
     );
 
@@ -44,4 +46,4 @@ module.exports = async (req, res) => {
     );
     return res.status(500).send("Error");
   }
-};
+}
