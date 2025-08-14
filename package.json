@@ -4,7 +4,9 @@
     "body-parser": "^2.2.0",
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
-    "node-fetch": "^3.3.2"
+    "node-fetch": "^3.3.2",
+    "parser": "^0.1.4",
+    "serverless-http": "^3.2.0"
   },
   "name": "koganapi",
   "version": "1.0.0",
